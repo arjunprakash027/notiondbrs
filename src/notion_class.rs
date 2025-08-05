@@ -1,7 +1,9 @@
 use notion_client::endpoints::Client as NativeNotionClient;
 use pyo3::prelude::*;
+use std::collections::HashMap;
 use tokio::runtime::Runtime;
 use crate::notion_utils::*;
+use crate::utils::*;
 
 #[pyclass]
 pub struct NotionClient {
@@ -26,5 +28,18 @@ impl NotionClient {
             .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
 
         Ok(databases)
+    }
+    
+    pub fn get_data(&self, db_id: &str) -> PyResult<HashMap<String, Vec<String>>> {
+        let rt = Runtime::new().map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+
+        let data = rt
+            .block_on(get_data_from_database(self.client.clone(), db_id))
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+
+        let data_hashmap = convert_notion_result_to_hashmap(&data)
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+        
+        Ok(data_hashmap)
     }
 }
