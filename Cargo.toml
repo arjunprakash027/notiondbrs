@@ -9,3 +9,7 @@ notion-client = "1.0.10"
 tokio = { version = "1.47.1", features = ["full"] }
 polars = { version = "0.50.0", features = ["fmt"] }
 serde_json = "1.0.142"
+pyo3 = { version = "0.25.1", features = ["extension-module"] }
+
+[lib]
+crate-type = ["cdylib"]
