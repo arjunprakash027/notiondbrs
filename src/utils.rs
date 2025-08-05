@@ -33,6 +33,9 @@ pub fn convert_notion_result_to_hashmap(
                         .filter_map(|rt| rt.plain_text().clone())
                         .collect::<Vec<String>>()
                 }
+                PageProperty::Number {id:_, number: number_arr} => {
+                    vec![number_arr.as_ref().map_or(" ".to_string(), |n| n.to_string())]
+                }
                 _ => vec![" ".to_string()]
             };
             
@@ -41,4 +44,17 @@ pub fn convert_notion_result_to_hashmap(
     }
     
     Ok(data)
+}
+
+pub fn hashmap_to_polars(data: &HashMap<String, Vec<String>>) -> Result<DataFrame> {
+    let cols_vec : Vec<Column> = data
+        .into_iter()
+        .map(|(col_name, vals)| {
+            let s = Series::new(col_name.into(), vals);
+            Column::from(s)
+        })
+        .collect();
+    
+    let df = DataFrame::new(cols_vec)?;
+    Ok(df) 
 }

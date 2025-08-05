@@ -39,6 +39,11 @@ impl NotionClient {
 
         let data_hashmap = convert_notion_result_to_hashmap(&data)
             .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+    
+        // let data_polars = hashmap_to_polars(&data_hashmap)
+        //     .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+        
+        // println!("{:?}", data_polars);
         
         Ok(data_hashmap)
     }

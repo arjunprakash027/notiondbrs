@@ -13,4 +13,4 @@ print(databases)
 
 data = client.get_data_from_database(DB_ID)
 
-print(data)
+print(data['Notes'])
