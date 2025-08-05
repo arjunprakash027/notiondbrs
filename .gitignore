@@ -3,3 +3,5 @@
 .rustup
 .venv
 .env
+__pycache__
+.DS_STORE
