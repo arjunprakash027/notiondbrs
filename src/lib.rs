@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
+mod notion_class;
 mod notion_utils;
 mod utils;
-mod notion_class;
 
 #[pymodule]
 fn notiondbrs(m: &Bound<'_, PyModule>) -> PyResult<()> {

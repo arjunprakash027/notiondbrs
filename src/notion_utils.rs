@@ -1,17 +1,11 @@
 use anyhow::Result;
 use notion_client::endpoints::{
     Client,
+    databases::query::{request::QueryDatabaseRequestBuilder, response::QueryDatabaseResponse},
     search::title::{
         request::{Filter, SearchByTitleRequestBuilder, Sort, SortDirection, Timestamp},
         response::PageOrDatabase,
     },
-    databases::query::{
-        request::{
-        QueryDatabaseRequestBuilder,
-    }, response::{
-        QueryDatabaseResponse,
-    },
-    }
 };
 
 pub fn setup_notion_client(notion_token: &str) -> Result<Client> {
@@ -21,21 +15,16 @@ pub fn setup_notion_client(notion_token: &str) -> Result<Client> {
     Ok(client)
 }
 
-pub async fn get_data_from_database(
-    client: Client,
-    db_id: &str,
-) -> Result<QueryDatabaseResponse> {
-    
+pub async fn get_data_from_database(client: Client, db_id: &str) -> Result<QueryDatabaseResponse> {
     let request = QueryDatabaseRequestBuilder::default();
-    
+
     let res = client
-            .databases
-            .query_a_database(db_id, request.build().unwrap())
-            .await?;
-    
+        .databases
+        .query_a_database(db_id, request.build().unwrap())
+        .await?;
+
     Ok(res)
 }
-
 
 pub async fn get_all_databases(client: Client) -> Result<Vec<(String, String)>> {
     let mut request = SearchByTitleRequestBuilder::default();

@@ -1,10 +1,10 @@
-use notion_client::endpoints::Client as NativeNotionClient;
-use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList};
-use std::collections::HashMap;
-use tokio::runtime::Runtime;
 use crate::notion_utils::*;
 use crate::utils::*;
+use notion_client::endpoints::Client as NativeNotionClient;
+use pyo3::prelude::*;
+use pyo3::types::PyDict;
+use std::collections::HashMap;
+use tokio::runtime::Runtime;
 
 #[pyclass]
 pub struct NotionClient {
@@ -30,9 +30,10 @@ impl NotionClient {
 
         Ok(databases)
     }
-    
+
     pub fn get_data(&self, db_id: &str) -> PyResult<HashMap<String, Vec<String>>> {
-        let rt = Runtime::new().map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+        let rt =
+            Runtime::new().map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
 
         let data = rt
             .block_on(get_data_from_database(self.client.clone(), db_id))
@@ -40,12 +41,11 @@ impl NotionClient {
 
         let data_hashmap = convert_notion_result_to_hashmap(&data)
             .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
-        
+
         Ok(data_hashmap)
     }
-    
+
     pub fn merge_data(&self, upload_data: &Bound<'_, PyDict>) -> PyResult<()> {
-        
         let input_hashmap = convert_pydict_to_hashmap(upload_data);
         println!("Python hashmap repr: {:?}", input_hashmap);
         Ok(())
