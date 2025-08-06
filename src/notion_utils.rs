@@ -1,6 +1,5 @@
 use std::collections::{
-    HashMap,
-    BTreeMap
+    BTreeMap, BTreeSet, HashMap
 };
 
 use anyhow::Result;
@@ -17,6 +16,8 @@ use notion_client::objects::{
         Text
     }
 };
+
+use crate::utils::chunk_into_vec_pages;
 
 
 pub fn setup_notion_client(notion_token: &str) -> Result<Client> {
@@ -41,53 +42,64 @@ pub async fn insert_data_to_notion(client: Client,upload_data: BTreeMap<String, 
     
     let first_key = upload_data.keys().next().cloned();
     println!("{:#?} is the Key Column",first_key);
-    for (key, values) in upload_data.iter() {
-        let is_first = Some(key) == first_key.as_ref();
-        convert_to_page_and_upload(&client ,key, values, &db_id, is_first).await?;
+    
+    let chunked_pages = chunk_into_vec_pages(&upload_data);
+    
+    for page in chunked_pages.iter() {
+        upload_page(&client ,page, &first_key, &db_id).await?;
     }
     Ok(())
 }
 
-pub async fn convert_to_page_and_upload(client: &Client ,key: &String, values: &Vec<String>, db_id: &String, is_first: bool) -> Result<()> {
+pub async fn upload_page(
+    client:  &Client,
+    page:    &BTreeMap<String, String>,
+    key_col: &Option<String>, 
+    db_id:   &str,
+) -> Result<()> {
+    
+    let mut properties = BTreeMap::new();
 
-    for value in values.iter(){
-        let mut properties = BTreeMap::new();
-        
-        if is_first {
-            properties.insert(
-                key.to_string(),
-                PageProperty::Title{ id: None,
-                    title: vec![RichText::Text { 
-                        text: Text { content: value.to_string(), link: None }, annotations: None, plain_text: None, href: None
-                    }],
-                },
-            );
+    for (key, value) in page {
+        let is_title = key_col.as_ref() == Some(key);
+
+        let prop = if is_title {
+            PageProperty::Title {
+                id: None,
+                title: vec![RichText::Text {
+                    text: Text { content: value.clone(), link: None },
+                    annotations: None,
+                    plain_text: None,
+                    href: None,
+                }],
+            }
         } else {
-            properties.insert(
-                key.to_string(),
-                PageProperty::RichText{ id: None,
-                    rich_text: vec![RichText::Text { 
-                        text: Text { content: value.to_string(), link: None }, annotations: None, plain_text: None, href: None
-                    }],
-                },
-            );
-        }
-        
-        let request = CreateAPageRequest {
-            parent: Parent::DatabaseId { database_id: db_id.to_string(), },
-            icon: None,
-            cover: None,
-            children: None,
-            properties: properties
+            PageProperty::RichText {
+                id: None,
+                rich_text: vec![RichText::Text {
+                    text: Text { content: value.clone(), link: None },
+                    annotations: None,
+                    plain_text: None,
+                    href: None,
+                }],
+            }
         };
-        
-        if let Err(e) = client.pages.create_a_page(request).await {
-            // Print the entire error object
-            eprintln!("Upload failed: {e}");
-            return Err(e.into());
-        }
-}
-Ok(())
+
+        properties.insert(key.clone(), prop);
+    }
+
+    let request = CreateAPageRequest {
+        parent: Parent::DatabaseId {
+            database_id: db_id.to_string(),
+        },
+        icon: None,
+        cover: None,
+        children: None,
+        properties,
+    };
+
+    client.pages.create_a_page(request).await?;
+    Ok(())
 }
 
 pub async fn get_all_databases(client: Client) -> Result<Vec<(String, String)>> {
