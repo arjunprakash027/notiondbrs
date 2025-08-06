@@ -13,4 +13,10 @@ print(databases)
 
 data = client.get_data_from_database(DB_ID)
 
-print(data['Notes'])
+print(type(data))
+
+upload_data = {
+    "a": ['1','2','3'],
+    "b": ['4','5','6'],
+}
+client.merge_data(upload_data)

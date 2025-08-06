@@ -1,5 +1,5 @@
 import notiondbrs
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 class NotionClient:
     
@@ -21,3 +21,9 @@ class NotionClient:
         get data from a specific database
         """
         return self.client.get_data(db_id)
+    
+    def merge_data(self, data: Dict[str, List[str]]) -> None:
+        """
+        merge data into the database
+        """
+        self.client.merge_data(data)

@@ -1,5 +1,6 @@
 use notion_client::endpoints::Client as NativeNotionClient;
 use pyo3::prelude::*;
+use pyo3::types::{PyDict, PyList};
 use std::collections::HashMap;
 use tokio::runtime::Runtime;
 use crate::notion_utils::*;
@@ -39,12 +40,14 @@ impl NotionClient {
 
         let data_hashmap = convert_notion_result_to_hashmap(&data)
             .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
-    
-        // let data_polars = hashmap_to_polars(&data_hashmap)
-        //     .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
-        
-        // println!("{:?}", data_polars);
         
         Ok(data_hashmap)
+    }
+    
+    pub fn merge_data(&self, upload_data: &Bound<'_, PyDict>) -> PyResult<()> {
+        
+        let input_hashmap = convert_pydict_to_hashmap(upload_data);
+        println!("Python hashmap repr: {:?}", input_hashmap);
+        Ok(())
     }
 }

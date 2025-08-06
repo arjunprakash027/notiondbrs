@@ -1,4 +1,3 @@
-use polars::prelude::*;
 use std::collections::HashMap;
 use anyhow::Result;
 use notion_client::endpoints::{
@@ -11,6 +10,9 @@ use notion_client::endpoints::{
 use notion_client::objects::{
     page::PageProperty
 };
+
+use pyo3::prelude::*;
+use pyo3::types::{PyDict, PyList};
 
 pub fn convert_notion_result_to_hashmap(
     result: &QueryDatabaseResponse
@@ -46,15 +48,21 @@ pub fn convert_notion_result_to_hashmap(
     Ok(data)
 }
 
-pub fn hashmap_to_polars(data: &HashMap<String, Vec<String>>) -> Result<DataFrame> {
-    let cols_vec : Vec<Column> = data
-        .into_iter()
-        .map(|(col_name, vals)| {
-            let s = Series::new(col_name.into(), vals);
-            Column::from(s)
-        })
-        .collect();
+pub fn convert_pydict_to_hashmap(pydata: &Bound<'_, PyDict>) -> Result<HashMap<String, Vec<String>>> {
+    let mut hashmap_data: HashMap<String, Vec<String>> = HashMap::new();
     
-    let df = DataFrame::new(cols_vec)?;
-    Ok(df) 
+    for (key, value) in pydata.iter() {
+        let key_str = key.extract::<String>()?;
+        
+        let py_list = value.downcast::<PyList>()
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+        
+        let rust_vec: Vec<String> = py_list.iter()
+            .map(|item| item.extract::<String>())
+            .collect::<PyResult<_>>()?;
+        
+        hashmap_data.insert(key_str, rust_vec);
+    }
+    
+    Ok(hashmap_data)
 }
