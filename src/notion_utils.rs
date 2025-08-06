@@ -5,7 +5,7 @@ use notion_client::{
     endpoints::{
         Client,
         databases::query::{request::QueryDatabaseRequestBuilder, response::QueryDatabaseResponse},
-        pages::create::request::{self, CreateAPageRequest, CreateAPageRequestBuilder},
+        pages::create::request::{CreateAPageRequest},
         search::title::{
             request::{Filter, SearchByTitleRequestBuilder, Sort, SortDirection, Timestamp},
             response::PageOrDatabase,

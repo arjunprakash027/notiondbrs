@@ -1,7 +1,7 @@
 use anyhow::{Result, bail};
 use notion_client::endpoints::databases::query::response::QueryDatabaseResponse;
 use notion_client::objects::page::PageProperty;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
