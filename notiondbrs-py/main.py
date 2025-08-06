@@ -6,6 +6,7 @@ load_dotenv()
 
 NOTION_TOKEN = os.environ.get("NOTION_TOKEN") or "none"
 DB_ID = os.environ.get("DB_ID") or "none"
+PAGE_ID = os.environ.get("PAGE_ID") or "none"
 
 client = NotionClient(NOTION_TOKEN)
 databases = client.get_all_databases()
@@ -21,3 +22,4 @@ upload_data = {
 }
 client.merge_data(upload_data)
 client.insert_data(upload_data, DB_ID)
+client.insert_data(upload_data, PAGE_ID, new_db=True)

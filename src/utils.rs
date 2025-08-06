@@ -1,7 +1,7 @@
 use anyhow::Result;
 use notion_client::endpoints::databases::query::response::QueryDatabaseResponse;
 use notion_client::objects::page::PageProperty;
-use std::collections::{BTreeMap, HashMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
@@ -73,20 +73,26 @@ pub fn convert_pydict_to_hashmap(
     Ok(hashmap_data)
 }
 
-pub fn chunk_into_vec_pages(upload_data: &BTreeMap<String, Vec<String>>) -> Vec<BTreeMap<String, String>> {
+pub fn chunk_into_vec_pages(
+    upload_data: &BTreeMap<String, Vec<String>>,
+) -> Vec<BTreeMap<String, String>> {
     let first_key = upload_data.keys().next().cloned();
-    let page_count = first_key.as_ref().and_then(|k| upload_data.get(k)).map(|v| v.len()).unwrap_or(0);
+    let page_count = first_key
+        .as_ref()
+        .and_then(|k| upload_data.get(k))
+        .map(|v| v.len())
+        .unwrap_or(0);
     let keys: BTreeSet<_> = upload_data.keys().cloned().collect();
-    
+
     (0..page_count)
         .map(|idx| {
             let mut props = BTreeMap::new();
-            for key in &keys{
+            for key in &keys {
                 let val = upload_data
-                        .get(key)
-                        .and_then(|v| v.get(idx))
-                        .cloned()
-                        .unwrap_or_default();
+                    .get(key)
+                    .and_then(|v| v.get(idx))
+                    .cloned()
+                    .unwrap_or_default();
                 props.insert(key.clone(), val);
             }
             props
