@@ -27,3 +27,6 @@ class NotionClient:
         merge data into the database
         """
         self.client.merge_data(data)
+    
+    def insert_data(self, data: Dict[str, List[str]], db_id: str) -> None:
+        self.client.insert_data(data, db_id)

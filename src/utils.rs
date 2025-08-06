@@ -1,15 +1,15 @@
 use anyhow::Result;
 use notion_client::endpoints::databases::query::response::QueryDatabaseResponse;
 use notion_client::objects::page::PageProperty;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 
 pub fn convert_notion_result_to_hashmap(
     result: &QueryDatabaseResponse,
-) -> Result<HashMap<String, Vec<String>>> {
-    let mut data: HashMap<String, Vec<String>> = HashMap::new();
+) -> Result<BTreeMap<String, Vec<String>>> {
+    let mut data: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
     for page in result.results.iter() {
         for (prop_name, prop_val) in &page.properties {
@@ -52,8 +52,8 @@ pub fn convert_notion_result_to_hashmap(
 
 pub fn convert_pydict_to_hashmap(
     pydata: &Bound<'_, PyDict>,
-) -> Result<HashMap<String, Vec<String>>> {
-    let mut hashmap_data: HashMap<String, Vec<String>> = HashMap::new();
+) -> Result<BTreeMap<String, Vec<String>>> {
+    let mut hashmap_data: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
     for (key, value) in pydata.iter() {
         let key_str = key.extract::<String>()?;

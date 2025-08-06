@@ -16,7 +16,8 @@ data = client.get_data_from_database(DB_ID)
 print(type(data))
 
 upload_data = {
-    "a": ['1','2','3'],
+    "Name": ['1','2','3'],
     "b": ['4','5','6'],
 }
 client.merge_data(upload_data)
+client.insert_data(upload_data, DB_ID)
