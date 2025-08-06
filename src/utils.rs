@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Result, bail};
 use notion_client::endpoints::databases::query::response::QueryDatabaseResponse;
 use notion_client::objects::page::PageProperty;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -98,4 +98,69 @@ pub fn chunk_into_vec_pages(
             props
         })
         .collect()
+}
+
+pub fn compare_and_merge_btmaps(
+    upload_data: &BTreeMap<String, Vec<String>>,
+    existing_data: &BTreeMap<String, Vec<String>>,
+) -> Result<BTreeMap<String, Vec<String>>> {
+    let mut merged_data = BTreeMap::new();
+
+    let first_key = existing_data.keys().next().cloned();
+    let page_count_update = first_key
+        .as_ref()
+        .and_then(|k| upload_data.get(k))
+        .map(|v| v.len())
+        .unwrap_or(0);
+
+    let page_count_existing = first_key
+        .as_ref()
+        .and_then(|k| existing_data.get(k))
+        .map(|v| v.len())
+        .unwrap_or(0);
+
+    let columns_upload_data: BTreeSet<_> = upload_data.keys().cloned().collect();
+    let columns_existing_data: BTreeSet<_> = existing_data.keys().cloned().collect();
+
+    let missing: BTreeSet<_> = columns_existing_data
+        .difference(&columns_upload_data)
+        .cloned()
+        .collect();
+
+    if missing.is_empty() {
+        let title_col_upload_data = first_key
+            .as_ref()
+            .and_then(|k| upload_data.get(k))
+            .cloned()
+            .unwrap_or_default();
+        let title_col_existing_data = first_key
+            .as_ref()
+            .and_then(|k| existing_data.get(k))
+            .cloned()
+            .unwrap_or_default();
+        
+        println!("new row num : {}, Existing row num : {}", page_count_update, page_count_existing);
+        for idx in 0..page_count_update {
+            if idx <= page_count_existing {
+                let upload_data_val = title_col_upload_data.iter().nth(idx);
+                
+                if !title_col_existing_data.contains(&upload_data_val.unwrap()) {
+                    for key in &columns_existing_data {
+                        let val = upload_data
+                            .get(key)
+                            .and_then(|v| v.get(idx))
+                            .cloned()
+                            .unwrap_or_default();
+                        merged_data
+                            .entry(key.clone())
+                            .or_insert_with(Vec::new)
+                            .push(val);
+                    }
+                }
+            }
+        }
+        return Ok(merged_data.clone());
+    } else {
+        bail!("Missing values: {:?}", missing);
+    }
 }

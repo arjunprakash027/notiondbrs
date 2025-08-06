@@ -20,6 +20,6 @@ upload_data = {
     "Name": ['1','2','3'],
     "b": ['4','5','6'],
 }
-client.merge_data(upload_data)
-client.insert_data(upload_data, DB_ID)
-client.insert_data(upload_data, PAGE_ID, new_db=True)
+client.merge_data(upload_data, DB_ID)
+#client.insert_data(upload_data, DB_ID)
+#client.insert_data(upload_data, PAGE_ID, new_db=True)

@@ -37,6 +37,20 @@ pub async fn get_data_from_database(client: Client, db_id: &str) -> Result<Query
     Ok(res)
 }
 
+pub async fn upsert_data_to_notion(
+    client: Client,
+    upload_data: BTreeMap<String, Vec<String>>,
+    db_id: String,
+) -> Result<()> {
+    let notion_data = get_data_from_database(client.clone(), &db_id).await?;
+    let notion_data_hashmap = crate::utils::convert_notion_result_to_hashmap(&notion_data)?;
+
+    let merged_data = crate::utils::compare_and_merge_btmaps(&upload_data, &notion_data_hashmap)?;
+
+    insert_data_to_notion(client, merged_data, db_id, false).await?;
+    Ok(())
+}
+
 pub async fn insert_data_to_notion(
     client: Client,
     upload_data: BTreeMap<String, Vec<String>>,
@@ -46,13 +60,14 @@ pub async fn insert_data_to_notion(
     let first_key = upload_data.keys().next().cloned();
     println!("{:#?} is the Key Column", first_key);
     let final_db_id: String;
-    
+
     if new_db {
-        final_db_id = create_database_using_pages(&client, &first_key, &upload_data, &db_id).await?;
+        final_db_id =
+            create_database_using_pages(&client, &first_key, &upload_data, &db_id).await?;
     } else {
         final_db_id = db_id.to_string();
     }
-    
+
     let chunked_pages = chunk_into_vec_pages(&upload_data);
 
     for page in chunked_pages.iter() {
@@ -109,11 +124,12 @@ pub async fn create_database_using_pages(
     };
 
     let response = client.databases.create_a_database(request).await?;
-    
-    let new_db_id = response.id
-            .clone()
-            .ok_or_else(|| anyhow::anyhow!("Notion returned DB without id"))?;
-    
+
+    let new_db_id = response
+        .id
+        .clone()
+        .ok_or_else(|| anyhow::anyhow!("Notion returned DB without id"))?;
+
     println!("New database created with ID : {:?}", new_db_id);
     Ok(new_db_id)
 }

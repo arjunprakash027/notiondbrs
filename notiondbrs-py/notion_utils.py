@@ -22,11 +22,11 @@ class NotionClient:
         """
         return self.client.get_data(db_id)
     
-    def merge_data(self, data: Dict[str, List[str]]) -> None:
+    def merge_data(self, data: Dict[str, List[str]], db_id: str) -> None:
         """
         merge data into the database
         """
-        self.client.merge_data(data)
+        self.client.merge_data(data, db_id)
     
     def insert_data(self, data: Dict[str, List[str]], db_id: str, new_db:bool = False) -> None:
         self.client.insert_data(data, db_id, new_db)
