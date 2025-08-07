@@ -4,4 +4,4 @@ export RUSTUP_HOME="$(pwd)/.rustup"
 export CARGO_TARGET_DIR="$(pwd)/target"
 
 maturin develop
-python notiondbrs-py/main.py
+python notiondbrs-py/examples.py

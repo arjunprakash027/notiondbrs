@@ -16,7 +16,7 @@ databases = client.get_all_databases()
 
 data = client.get_data_from_database(DB_ID)
 
-data_len = 100
+data_len = 1000
 upload_data = {
     "name": [f"Name_{i}" for i in range(data_len)],
     "id": [str(uuid.uuid4()) for _ in range(data_len)],

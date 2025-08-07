@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use anyhow::Result;
+use anyhow::{Result};
 use notion_client::{
     endpoints::{
         Client,
@@ -42,10 +42,16 @@ pub async fn upsert_data_to_notion(
     upload_data: BTreeMap<String, Vec<String>>,
     db_id: String,
 ) -> Result<()> {
+
     let notion_data = get_data_from_database(client.clone(), &db_id).await?;
     let notion_data_hashmap = crate::utils::convert_notion_result_to_hashmap(&notion_data)?;
+    let merged_data: BTreeMap<String, Vec<String>>;
 
-    let merged_data = crate::utils::compare_and_merge_btmaps(&upload_data, &notion_data_hashmap)?;
+    if notion_data_hashmap.len() == 0 {
+        merged_data  = upload_data.clone();
+    } else {
+        merged_data = crate::utils::compare_and_merge_btmaps(&upload_data, &notion_data_hashmap)?;
+    }
 
     insert_data_to_notion(client, merged_data, db_id, false).await?;
     Ok(())
@@ -193,9 +199,8 @@ pub async fn upload_data_parallel(
     key_col: &Option<String>,
     db_id: &str,
 ) -> Result<()> {
-    // let rt = tokio::runtime::Runtime::new()?;
-    // let rt = Arc::new(rt);
 
+    println!("Upload started for {} items", pages.len());
     let mut handles = Vec::with_capacity(8);
 
     for page in pages {
