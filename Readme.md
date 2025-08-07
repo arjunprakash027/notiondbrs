@@ -40,7 +40,7 @@ PAGE_ID=your_page_id  # For creating new databases
 ### Basic Setup
 
 ```python
-from notion_utils import NotionClient
+from notiondbrs import NotionClient
 import os
 from dotenv import load_dotenv
 
