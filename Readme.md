@@ -13,6 +13,11 @@ A high-performance Notion database client built with Rust and exposed to Python 
 ## Installation
 
 ```bash
+# from pypi
+pip install notiondbrs
+```
+
+```bash
 # Clone and build
 git clone https://github.com/yourusername/notiondbrs.git
 cd notiondbrs
