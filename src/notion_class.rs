@@ -3,7 +3,7 @@ use crate::utils::*;
 use notion_client::endpoints::Client as NativeNotionClient;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
-use std::collections::{BTreeMap};
+use std::collections::BTreeMap;
 use tokio::runtime::Runtime;
 
 #[pyclass]

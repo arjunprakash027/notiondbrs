@@ -138,24 +138,24 @@ pub fn compare_and_merge_btmaps(
             .and_then(|k| existing_data.get(k))
             .cloned()
             .unwrap_or_default();
-        
-        println!("new row num : {}, Existing row num : {}", page_count_update, page_count_existing);
+
+        println!(
+            "new row num : {}, Existing row num : {}",
+            page_count_update, page_count_existing
+        );
         for idx in 0..page_count_update {
-            if idx <= page_count_existing {
-                let upload_data_val = title_col_upload_data.iter().nth(idx);
-                
-                if !title_col_existing_data.contains(&upload_data_val.unwrap()) {
-                    for key in &columns_existing_data {
-                        let val = upload_data
-                            .get(key)
-                            .and_then(|v| v.get(idx))
-                            .cloned()
-                            .unwrap_or_default();
-                        merged_data
-                            .entry(key.clone())
-                            .or_insert_with(Vec::new)
-                            .push(val);
-                    }
+            let upload_data_val = title_col_upload_data.iter().nth(idx);
+            if !title_col_existing_data.contains(&upload_data_val.unwrap()) {
+                for key in &columns_existing_data {
+                    let val = upload_data
+                        .get(key)
+                        .and_then(|v| v.get(idx))
+                        .cloned()
+                        .unwrap_or_default();
+                    merged_data
+                        .entry(key.clone())
+                        .or_insert_with(Vec::new)
+                        .push(val);
                 }
             }
         }

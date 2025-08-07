@@ -5,7 +5,7 @@ use notion_client::{
     endpoints::{
         Client,
         databases::query::{request::QueryDatabaseRequestBuilder, response::QueryDatabaseResponse},
-        pages::create::request::{CreateAPageRequest},
+        pages::create::request::CreateAPageRequest,
         search::title::{
             request::{Filter, SearchByTitleRequestBuilder, Sort, SortDirection, Timestamp},
             response::PageOrDatabase,
@@ -58,7 +58,7 @@ pub async fn insert_data_to_notion(
     new_db: bool,
 ) -> Result<()> {
     let first_key = upload_data.keys().next().cloned();
-    println!("{:#?} is the Key Column", first_key);
+    println!("{:#?} is the Key Column", first_key.clone().unwrap());
     let final_db_id: String;
 
     if new_db {
@@ -70,9 +70,7 @@ pub async fn insert_data_to_notion(
 
     let chunked_pages = chunk_into_vec_pages(&upload_data);
 
-    for page in chunked_pages.iter() {
-        upload_page(&client, page, &first_key, &final_db_id).await?;
-    }
+    upload_data_parallel(&client, chunked_pages, &first_key, &final_db_id).await?;
     Ok(())
 }
 
@@ -186,6 +184,40 @@ pub async fn upload_page(
     };
 
     client.pages.create_a_page(request).await?;
+    Ok(())
+}
+
+pub async fn upload_data_parallel(
+    client: &Client,
+    pages: Vec<BTreeMap<String, String>>,
+    key_col: &Option<String>,
+    db_id: &str,
+) -> Result<()> {
+    // let rt = tokio::runtime::Runtime::new()?;
+    // let rt = Arc::new(rt);
+
+    let mut handles = Vec::with_capacity(8);
+
+    for page in pages {
+        let cli = client.clone();
+        let key = key_col.clone();
+        let db = db_id.to_string();
+
+        handles.push(tokio::spawn(async move {
+            match upload_page(&cli, &page, &key, &db).await {
+                Ok(_) => Ok(()),
+                Err(e) => {
+                    eprintln!("Upload page error: {:?}", e);
+                    Err(e)
+                }
+            }
+        }));
+    }
+
+    for task in handles {
+        task.await??;
+    }
+
     Ok(())
 }
 
