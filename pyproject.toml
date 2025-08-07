@@ -1,6 +1,6 @@
 [project]
 name = "notiondbrs"
-version = "0.1.0"
+version = "0.1.1"
 
 description = "A rust based python client for Notion's database"
 
@@ -17,13 +17,12 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
 ]
-urls = { 
-    "Homepage" = "https://github.com/arjunprakash027/notiondbrs",
-}
+
+urls = { "Homepage" = "https://github.com/arjunprakash027/notiondbrs" } 
+
 
 requires-python = ">=3.13"
 dependencies = [
-    "maturin>=1.9.3",
     "python-dotenv>=1.1.1",
 ]
 
