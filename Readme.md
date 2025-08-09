@@ -27,13 +27,29 @@ chmod +x run.sh
 
 ## Configuration
 
-Create a `.env` file:
+Before using `notiondbrs`, create a `.env` file in your project directory with the following variables:
 
 ```env
 NOTION_TOKEN=your_notion_integration_token
-DB_ID=your_database_id
-PAGE_ID=your_page_id  # For creating new databases
+DB_ID=your_database_id         # (Optional) Use if you already have a Notion database
+PAGE_ID=your_page_id           # (Optional) Use if you want to create a new database
 ```
+
+**How to obtain these values:**
+
+- **NOTION_TOKEN:**  
+  Create a Notion integration and copy its "Internal Integration Token".  
+  [Official guide](https://developers.notion.com/docs/create-a-notion-integration)
+
+- **DB_ID (Database ID) or PAGE_ID (Page ID):**  
+  Find this in the URL of your Notion database or Page.  
+  [How to find Database ID or Page ID](https://neverproductive.com/database-id-notion/)
+
+> - Use **DB_ID** if you want to connect to an existing database (with the correct columns).
+> - Use **PAGE_ID** if you want `notiondbrs` to create a new database for you (the database will be created on this page).
+
+**Note:**  
+You only need to provide one of `DB_ID` or `PAGE_ID` depending on your use
 
 ## Usage
 
